@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EV Battery Network | Dashboard</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 255px;
+            background: #101827;
+            color: white;
+            padding: 24px 16px;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 10px 30px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: #22c55e;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .brand h2 {
+            font-size: 17px;
+        }
+
+        .brand span {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .menu-title {
+            color: #64748b;
+            font-size: 10px;
+            margin: 20px 12px 8px;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px;
+            margin: 3px 0;
+            color: #aeb9ca;
+            text-decoration: none;
+            border-radius: 9px;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #1f2a3d;
+            color: white;
+        }
+
+        .sidebar-bottom {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid #263246;
+            padding-top: 15px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-bottom strong,
+        .sidebar-bottom small {
+            display: block;
+        }
+
+        .sidebar-bottom strong {
+            font-size: 13px;
+        }
+
+        .sidebar-bottom small {
+            color: #94a3b8;
+            font-size: 10px;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 255px;
+            width: calc(100% - 255px);
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h1 {
+            font-size: 28px;
+        }
+
+        .topbar p {
+            color: #718096;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn,
+        .admin-btn {
+            background: white;
+            padding: 11px 15px;
+            border-radius: 9px;
+            box-shadow: 0 3px 10px #0000000d;
+        }
+
+        /* WELCOME */
+
+        .welcome {
+            margin-top: 25px;
+            padding: 25px;
+            background: linear-gradient(110deg, #122033, #1c3551);
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome h2 {
+            font-size: 21px;
+        }
+
+        .welcome p {
+            color: #b8c5d6;
+            margin-top: 7px;
+            font-size: 13px;
+        }
+
+        .primary-btn {
+            background: #22c55e;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-weight: bold;
+        }
+
+        .primary-btn:hover {
+            background: #16a34a;
+        }
+
+        /* STAT CARDS */
+
+        .stats-grid {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 13px;
+            box-shadow: 0 3px 12px #0000000d;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blue {
+            background: #e0edff;
+        }
+
+        .green {
+            background: #dcfce7;
+        }
+
+        .orange {
+            background: #ffedd5;
+        }
+
+        .red {
+            background: #fee2e2;
+        }
+
+        .stat-card h2 {
+            margin-top: 15px;
+            font-size: 28px;
+        }
+
+        .positive {
+            color: #16a34a;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .neutral {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .danger {
+            color: #dc2626;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        /* PANELS */
+
+        .content-grid {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 18px;
+        }
+
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 13px;
+            box-shadow: 0 3px 12px #0000000d;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h3 {
+            font-size: 15px;
+        }
+
+        .panel-header p {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .small-btn {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 7px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .small-btn:hover {
+            background: #e2e8f0;
+        }
+
+        /* HEALTH */
+
+        .health-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .health-circle {
+            width: 145px;
+            height: 145px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #22c55e 0 75%,
+                #e5e7eb 75% 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .health-circle > div {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .health-circle strong {
+            font-size: 25px;
+        }
+
+        .health-circle span {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .health-list {
+            width: 180px;
+        }
+
+        .health-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f7;
+            font-size: 12px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 7px;
+        }
+
+        .excellent {
+            background: #22c55e;
+        }
+
+        .warning {
+            background: #f59e0b;
+        }
+
+        .critical {
+            background: #ef4444;
+        }
+
+        /* QUICK ACTIONS */
+
+        .quick-actions {
+            margin-top: 15px;
+        }
+
+        .quick-actions button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 9px;
+            background: #f8fafc;
+            border-radius: 9px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .quick-actions button:hover {
+            background: #e2e8f0;
+            transform: translateX(3px);
+        }
+
+        .quick-actions button span {
+            font-size: 20px;
+        }
+
+        .quick-actions strong,
+        .quick-actions small {
+            display: block;
+        }
+
+        .quick-actions strong {
+            font-size: 12px;
+        }
+
+        .quick-actions small {
+            color: #94a3b8;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        /* TABLE */
+
+        .table-panel {
+            margin-top: 20px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            text-align: left;
+            padding: 13px;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #eef2f7;
+            font-size: 12px;
+        }
+
+        .tag {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+
+        .status {
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .available {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .recycling {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .soh {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress {
+            width: 70px;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .good {
+            background: #22c55e;
+        }
+
+        .critical-fill {
+            background: #ef4444;
+        }
+
+        /* ALERT */
+
+        .alert {
+            margin-top: 20px;
+            padding: 16px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+        }
+
+        .alert strong {
+            font-size: 13px;
+        }
+
+        .alert p {
+            color: #9a3412;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .alert button {
+            margin-left: auto;
+            background: #ea580c;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 7px;
+        }
+
+        .alert button:hover {
+            background: #c2410c;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 10px;
+            padding: 25px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1000px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar .brand h2,
+            .sidebar .brand span,
+            .sidebar .nav-item:not(:has(span)),
+            .sidebar .menu-title,
+            .sidebar-bottom div:last-child {
+                display: none;
+            }
+
+            .main {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">⚡</div>
+
+            <div>
+                <h2>EV Network</h2>
+                <span>Battery Management</span>
+            </div>
+        </div>
+
+        <nav>
+
+            <p class="menu-title">MAIN</p>
+
+            <a href="/" class="nav-item active">
+                <span>📊</span>
+                Dashboard
+            </a>
+
+            <a href="/batteries" class="nav-item">
+                <span>🔋</span>
+                Batteries
+            </a>
+
+            <a href="/swaps" class="nav-item">
+                <span>🔄</span>
+                Battery Swaps
+            </a>
+
+            <!-- Future page -->
+            <a href="/fleet" class="nav-item">
+                <span>🚗</span>
+                Fleet
+            </a>
+
+            <a href="/invoices" class="nav-item">
+                <span>🧾</span>
+                Invoices & Billing
+            </a>
+
+            <p class="menu-title">OPERATIONS</p>
+
+            <!-- Future page -->
+            <a href="/recycling" class="nav-item">
+                <span>♻️</span>
+                Recycling
+            </a>
+
+            <!-- Future page -->
+            <a href="/finance" class="nav-item">
+                <span>💰</span>
+                Finance
+            </a>
+
+            <!-- Future page -->
+            <a href="/purchase-orders" class="nav-item">
+                <span>📦</span>
+                Purchase Orders
+            </a>
+
+            <!-- Future page -->
+            <a href="/reports" class="nav-item">
+                <span>📊</span>
+                Reports
+            </a>
+
+            <p class="menu-title">SYSTEM</p>
+
+            <!-- Future page -->
+            <a href="#" class="nav-item" onclick="comingSoon('Settings'); return false;">
+                <span>⚙️</span>
+                Settings
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="user-avatar">A</div>
+
+            <div>
+                <strong>Admin</strong>
+                <small>Network Director</small>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>Public EV Fleet Battery Network</p>
+            </div>
+
+            <div class="top-actions">
+
+                <button class="icon-btn" onclick="showNotification()">
+                    🔔
+                </button>
+
+                <button class="admin-btn" onclick="showAdmin()">
+                    👤 Admin
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- WELCOME -->
+
+        <section class="welcome">
+
+            <div>
+
+                <h2 id="greeting">Good evening, Admin 👋</h2>
+
+                <p>
+                    Here's what's happening across your battery network today.
+                </p>
+
+            </div>
+
+            <button class="primary-btn" onclick="goToBatteries()">
+                + Add Battery
+            </button>
+
+        </section>
+
+
+        <!-- STAT CARDS -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>Total Batteries</span>
+
+                    <div class="stat-icon blue">
+                        🔋
+                    </div>
+
+                </div>
+
+                <h2>2</h2>
+
+                <p class="positive">
+                    ↑ 12.5% from last month
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>Available</span>
+
+                    <div class="stat-icon green">
+                        ✓
+                    </div>
+
+                </div>
+
+                <h2>1</h2>
+
+                <p class="positive">
+                    Ready for swapping
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>In Operation</span>
+
+                    <div class="stat-icon orange">
+                        ⚡
+                    </div>
+
+                </div>
+
+                <h2>0</h2>
+
+                <p class="neutral">
+                    Currently deployed
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <span>Recycling</span>
+
+                    <div class="stat-icon red">
+                        ♻
+                    </div>
+
+                </div>
+
+                <h2>1</h2>
+
+                <p class="danger">
+                    ⚠ SoH below 70%
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- MIDDLE -->
+
+        <section class="content-grid">
+
+
+            <!-- HEALTH -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h3>Battery Health Overview</h3>
+
+                        <p>
+                            Current State of Health distribution
+                        </p>
+
+                    </div>
+
+                    <button class="small-btn" onclick="goToBatteries()">
+                        View All
+                    </button>
+
+                </div>
+
+
+                <div class="health-content">
+
+                    <div class="health-circle">
+
+                        <div>
+
+                            <strong>75%</strong>
+
+                            <span>
+                                Avg. SoH
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="health-list">
+
+                        <div class="health-row">
+
+                            <span>
+                                <i class="dot excellent"></i>
+                                Excellent
+                            </span>
+
+                            <strong>1</strong>
+
+                        </div>
+
+
+                        <div class="health-row">
+
+                            <span>
+                                <i class="dot warning"></i>
+                                Attention
+                            </span>
+
+                            <strong>0</strong>
+
+                        </div>
+
+
+                        <div class="health-row">
+
+                            <span>
+                                <i class="dot critical"></i>
+                                Recycling
+                            </span>
+
+                            <strong>1</strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK ACTIONS -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h3>Quick Actions</h3>
+
+                        <p>
+                            Manage your network
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="quick-actions">
+
+                    <button onclick="goToBatteries()">
+
+                        <span>🔋</span>
+
+                        <div>
+
+                            <strong>Add Battery</strong>
+
+                            <small>
+                                Register a new battery pack
+                            </small>
+
+                        </div>
+
+                    </button>
+
+
+                    <button onclick="goToSwaps()">
+
+                        <span>🔄</span>
+
+                        <div>
+
+                            <strong>New Swap</strong>
+
+                            <small>
+                                Record a battery swap
+                            </small>
+
+                        </div>
+
+                    </button>
+
+
+                    <button onclick="window.location.href='/recycling'">
+
+                        <span>♻️</span>
+
+                        <div>
+
+                            <strong>Recycling</strong>
+
+                            <small>
+                                Manage retired batteries
+                            </small>
+
+                        </div>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- BATTERY TABLE -->
+
+        <section class="panel table-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h3>Recent Batteries</h3>
+
+                    <p>
+                        Latest battery packs registered in the network
+                    </p>
+
+                </div>
+
+                <button class="small-btn" onclick="goToBatteries()">
+                    View All Batteries
+                </button>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+
+                        <th>Battery</th>
+                        <th>Manufacturer</th>
+                        <th>Chemistry</th>
+                        <th>Capacity</th>
+                        <th>SoH</th>
+                        <th>Status</th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                    <tr>
+
+                        <td>
+                            <strong>BAT001</strong>
+                        </td>
+
+                        <td>
+                            Tata Motors
+                        </td>
+
+                        <td>
+                            <span class="tag">
+                                LFP
+                            </span>
+                        </td>
+
+                        <td>
+                            40.5 kWh
+                        </td>
+
+                        <td>
+
+                            <div class="soh">
+
+                                <div class="progress">
+
+                                    <div
+                                            class="progress-fill good"
+                                            style="width:85%">
+                                    </div>
+
+                                </div>
+
+                                <span>
+                                    85%
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            <span class="status available">
+                                ● Available
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            <strong>BAT002</strong>
+                        </td>
+
+                        <td>
+                            Tata Motors
+                        </td>
+
+                        <td>
+                            <span class="tag">
+                                LFP
+                            </span>
+                        </td>
+
+                        <td>
+                            35.0 kWh
+                        </td>
+
+                        <td>
+
+                            <div class="soh">
+
+                                <div class="progress">
+
+                                    <div
+                                            class="progress-fill critical-fill"
+                                            style="width:65%">
+                                    </div>
+
+                                </div>
+
+                                <span>
+                                    65%
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            <span class="status recycling">
+                                ● Recycling
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ALERT -->
+
+        <section class="alert">
+
+            <div class="alert-icon">
+                ⚠️
+            </div>
+
+            <div>
+
+                <strong>
+                    Battery Recycling Alert
+                </strong>
+
+                <p>
+                    BAT002 has a State of Health of 65%.
+                    According to network policy, it has been automatically
+                    marked for recycling.
+                </p>
+
+            </div>
+
+            <button onclick="reviewRecycling()">
+                Review
+            </button>
+
+        </section>
+
+
+        <footer>
+
+            © 2026 EV Battery Network •
+            Circular Energy Management Platform
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+    function updateGreeting() {
+        const hour = new Date().getHours();
+        let greeting;
+
+        if (hour < 12) {
+            greeting = "Good morning";
+        } else if (hour < 17) {
+            greeting = "Good afternoon";
+        } else if (hour < 21) {
+            greeting = "Good evening";
+        } else {
+            greeting = "Good night";
+        }
+
+        document.getElementById("greeting").textContent =
+            greeting + ", Admin 👋";
+    }
+
+    updateGreeting();
+
+
+    function goToBatteries() {
+        window.location.href = "/batteries";
+    }
+
+    function goToSwaps() {
+        window.location.href = "/swaps";
+    }
+
+</script>
+
+</body>
+</html>

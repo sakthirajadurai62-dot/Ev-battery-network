@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - EV Battery Network</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ecfdf5,
+                    #dcfce7,
+                    #f0fdf4
+                );
+        }
+
+        .login-container {
+            width: 420px;
+            max-width: 92%;
+
+            background: #ffffff;
+
+            padding: 40px;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Logo */
+
+        .logo {
+            width: 70px;
+            height: 70px;
+
+            margin: 0 auto 18px;
+
+            border-radius: 18px;
+
+            background: #16a34a;
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 27px;
+            font-weight: 800;
+
+            box-shadow:
+                0 8px 20px rgba(22, 163, 74, 0.25);
+        }
+
+        /* Heading */
+
+        h1 {
+            text-align: center;
+
+            color: #166534;
+
+            font-size: 25px;
+
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+
+            color: #6b7280;
+
+            font-size: 14px;
+
+            line-height: 1.5;
+
+            margin-bottom: 28px;
+        }
+
+        /* Messages */
+
+        .message {
+            padding: 11px 13px;
+
+            border-radius: 8px;
+
+            margin-bottom: 18px;
+
+            font-size: 14px;
+
+            text-align: center;
+        }
+
+        .error {
+            color: #b91c1c;
+
+            background: #fef2f2;
+
+            border: 1px solid #fecaca;
+        }
+
+        .logout {
+            color: #15803d;
+
+            background: #f0fdf4;
+
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Form */
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #374151;
+
+            font-size: 14px;
+
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+
+            padding: 13px 14px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 9px;
+
+            background: #ffffff;
+
+            color: #111827;
+
+            font-size: 15px;
+
+            outline: none;
+
+            transition: 0.2s;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #16a34a;
+
+            box-shadow:
+                0 0 0 3px rgba(22, 163, 74, 0.12);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        /* Login Button */
+
+        .login-button {
+            width: 100%;
+
+            padding: 14px;
+
+            margin-top: 3px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background: #16a34a;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .login-button:hover {
+            background: #15803d;
+
+            transform: translateY(-1px);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        /* Demo Accounts */
+
+        .demo {
+            margin-top: 25px;
+
+            padding: 15px;
+
+            background: #f0fdf4;
+
+            border: 1px solid #dcfce7;
+
+            border-radius: 10px;
+
+            color: #166534;
+
+            font-size: 13px;
+
+            line-height: 1.8;
+        }
+
+        .demo-title {
+            font-weight: 700;
+
+            margin-bottom: 5px;
+        }
+
+        .demo-row {
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 10px;
+        }
+
+        /* Footer */
+
+        .footer {
+            text-align: center;
+
+            margin-top: 22px;
+
+            color: #9ca3af;
+
+            font-size: 12px;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 480px) {
+
+            .login-container {
+                padding: 30px 24px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .demo-row {
+                flex-direction: column;
+
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <!-- Logo -->
+
+    <div class="logo">
+        EV
+    </div>
+
+
+    <!-- Heading -->
+
+    <h1>
+        EV Battery Network
+    </h1>
+
+    <p class="subtitle">
+        Public EV Fleet Battery Swapping & Circular Recycling Network
+    </p>
+
+
+    <!-- Login Error -->
+
+    <div
+            th:if="${param.error}"
+            class="message error">
+
+        Invalid username or password
+
+    </div>
+
+
+    <!-- Logout Message -->
+
+    <div
+            th:if="${param.logout}"
+            class="message logout">
+
+        You have been logged out successfully
+
+    </div>
+
+
+    <!-- Login Form -->
+
+    <form
+            th:action="@{/login}"
+            method="post"
+            id="loginForm">
+
+
+        <!-- Select Role -->
+
+        <div class="form-group">
+
+            <label for="role">
+                Select Role
+            </label>
+
+            <select
+                    id="role"
+                    name="role"
+                    required>
+
+                <option value="">
+                    Choose your role
+                </option>
+
+                <option value="ADMIN">
+                    Admin
+                </option>
+
+                <option value="USER">
+                    User
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Username -->
+
+        <div class="form-group">
+
+            <label for="username">
+                Username
+            </label>
+
+            <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required>
+
+        </div>
+
+
+        <!-- Password -->
+
+        <div class="form-group">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required>
+
+        </div>
+
+
+        <!-- Login Button -->
+
+        <button
+                type="submit"
+                class="login-button">
+
+            Login
+
+        </button>
+
+    </form>
+
+
+    <!-- Demo Accounts -->
+
+    <div class="demo">
+
+        <div class="demo-title">
+            Demo Accounts
+        </div>
+
+        <div class="demo-row">
+            <span>Admin</span>
+            <span>admin / admin123</span>
+        </div>
+
+        <div class="demo-row">
+            <span>User</span>
+            <span>user / user123</span>
+        </div>
+
+    </div>
+
+
+    <!-- Footer -->
+
+    <div class="footer">
+        EV Battery Network © 2026
+    </div>
+
+</div>
+
+
+<!-- Role Validation -->
+
+<script>
+
+    document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (event) {
+
+            const role =
+                document.getElementById("role").value;
+
+            const username =
+                document.getElementById("username").value.trim();
+
+
+            // Check role selection
+
+            if (role === "") {
+
+                event.preventDefault();
+
+                alert("Please select your role.");
+
+                return;
+            }
+
+
+            // Admin validation
+
+            if (role === "ADMIN" && username !== "admin") {
+
+                event.preventDefault();
+
+                alert(
+                    "Admin role selected. Please use the Admin username."
+                );
+
+                return;
+            }
+
+
+            // User validation
+
+            if (role === "USER" && username !== "user") {
+
+                event.preventDefault();
+
+                alert(
+                    "User role selected. Please use the User username."
+                );
+
+                return;
+            }
+
+        });
+
+</script>
+
+</body>
+
+</html>

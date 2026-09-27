@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports | EV Battery Network</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7f5;
+            color: #17251c;
+        }
+
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #dce5df;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-left h1 {
+            font-size: 25px;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: #68756d;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            background: #198754;
+            color: white;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: #146c43;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .section-title {
+            margin-bottom: 18px;
+            font-size: 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 35px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e0e8e3;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: #e9f7ef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+        }
+
+        .card-label {
+            color: #68756d;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+        .card-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 6px;
+            color: #17251c;
+        }
+
+        .finance-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 35px;
+        }
+
+        .finance-card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid #e0e8e3;
+        }
+
+        .finance-card h3 {
+            font-size: 15px;
+            color: #68756d;
+            margin-bottom: 12px;
+        }
+
+        .finance-value {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .revenue {
+            color: #198754;
+        }
+
+        .expense {
+            color: #dc3545;
+        }
+
+        .net {
+            color: #0d6efd;
+        }
+
+        .table-card {
+            background: white;
+            border: 1px solid #e0e8e3;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .table-header h2 {
+            font-size: 19px;
+        }
+
+        .refresh-btn {
+            border: none;
+            background: #198754;
+            color: white;
+            padding: 9px 15px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        th {
+            background: #f0f5f2;
+            text-align: left;
+            padding: 13px;
+            font-size: 13px;
+            color: #526057;
+        }
+
+        td {
+            padding: 13px;
+            border-bottom: 1px solid #edf1ee;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #fafcfb;
+        }
+
+        .status {
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-recycling {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-available {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-inuse {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 25px;
+            color: #68756d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #842029;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: #7a857e;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1100px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .header {
+                padding: 15px;
+            }
+
+            .header-left h1 {
+                font-size: 20px;
+            }
+
+            .container {
+                padding: 18px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .finance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .back-btn {
+                padding: 9px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="header-left">
+        <h1>📊 Reports</h1>
+        <p>EV Battery Network Performance & Financial Reports</p>
+    </div>
+
+    <a href="/" class="back-btn">
+        ← Dashboard
+    </a>
+
+</header>
+
+
+<main class="container">
+
+    <div id="errorBox" class="error"></div>
+
+    <!-- MAIN SUMMARY -->
+
+    <h2 class="section-title">Network Overview</h2>
+
+    <div class="cards">
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-label">Total Batteries</div>
+                    <div class="card-value" id="totalBatteries">0</div>
+                </div>
+
+                <div class="icon">🔋</div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-label">Recycling Batteries</div>
+                    <div class="card-value" id="recyclingBatteries">0</div>
+                </div>
+
+                <div class="icon">♻️</div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-label">Fleet Vehicles</div>
+                    <div class="card-value" id="totalFleetVehicles">0</div>
+                </div>
+
+                <div class="icon">🚕</div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-label">Battery Swaps</div>
+                    <div class="card-value" id="totalSwaps">0</div>
+                </div>
+
+                <div class="icon">🔄</div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- BILLING -->
+
+    <h2 class="section-title">Billing Overview</h2>
+
+    <div class="cards">
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-label">Total Invoices</div>
+                    <div class="card-value" id="totalInvoices">0</div>
+                </div>
+
+                <div class="icon">🧾</div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-label">Invoice Amount</div>
+                    <div class="card-value" id="totalInvoiceAmount">₹0.00</div>
+                </div>
+
+                <div class="icon">💳</div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-label">Recycling Cost</div>
+                    <div class="card-value" id="totalRecyclingCost">₹0.00</div>
+                </div>
+
+                <div class="icon">♻️</div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-label">Transactions</div>
+                    <div class="card-value" id="totalTransactions">0</div>
+                </div>
+
+                <div class="icon">📑</div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- FINANCE -->
+
+    <h2 class="section-title">Financial Summary</h2>
+
+    <div class="finance-grid">
+
+        <div class="finance-card">
+            <h3>💰 Total Revenue</h3>
+            <div class="finance-value revenue" id="totalRevenue">
+                ₹0.00
+            </div>
+        </div>
+
+
+        <div class="finance-card">
+            <h3>💸 Total Expenses</h3>
+            <div class="finance-value expense" id="totalExpenses">
+                ₹0.00
+            </div>
+        </div>
+
+
+        <div class="finance-card">
+            <h3>📈 Net Amount</h3>
+            <div class="finance-value net" id="netAmount">
+                ₹0.00
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- BATTERY REPORT -->
+
+    <div class="table-card">
+
+        <div class="table-header">
+
+            <h2>🔋 Battery Report</h2>
+
+            <button class="refresh-btn" onclick="loadBatteryReport()">
+                ↻ Refresh
+            </button>
+
+        </div>
+
+        <div id="batteryLoading" class="loading">
+            Loading battery data...
+        </div>
+
+        <table id="batteryTable" style="display:none;">
+
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Battery Code</th>
+                <th>Manufacturer</th>
+                <th>Chemistry</th>
+                <th>Capacity</th>
+                <th>SoH</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+
+            <tbody id="batteryTableBody"></tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- RECYCLING REPORT -->
+
+    <div class="table-card">
+
+        <div class="table-header">
+
+            <h2>♻️ Recycling Report</h2>
+
+            <button class="refresh-btn" onclick="loadRecyclingReport()">
+                ↻ Refresh
+            </button>
+
+        </div>
+
+        <div id="recyclingLoading" class="loading">
+            Loading recycling data...
+        </div>
+
+        <table id="recyclingTable" style="display:none;">
+
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Battery Code</th>
+                <th>SoH</th>
+                <th>Specialist</th>
+                <th>Cost</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+
+            <tbody id="recyclingTableBody"></tbody>
+
+        </table>
+
+    </div>
+
+</main>
+
+
+<footer class="footer">
+    EV Battery Network • Reports & Analytics
+</footer>
+
+
+<script>
+
+    const API_BASE = "http://localhost:8080";
+
+    const username = "admin";
+    const password = "admin123";
+
+    const authHeader =
+        "Basic " + btoa(username + ":" + password);
+
+
+    function formatCurrency(value) {
+
+        const number = Number(value || 0);
+
+        return "₹" + number.toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+
+    function showError(message) {
+
+        const errorBox = document.getElementById("errorBox");
+
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+    }
+
+
+    function hideError() {
+
+        document.getElementById("errorBox").style.display = "none";
+    }
+
+
+    async function loadSummary() {
+
+        try {
+
+            hideError();
+
+            const response = await fetch(
+                API_BASE + "/api/reports/summary",
+                {
+                    headers: {
+                        "Authorization": authHeader
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    "Unable to load report summary. HTTP " +
+                    response.status
+                );
+            }
+
+            const data = await response.json();
+
+
+            document.getElementById("totalBatteries").textContent =
+                data.totalBatteries || 0;
+
+            document.getElementById("recyclingBatteries").textContent =
+                data.recyclingBatteries || 0;
+
+            document.getElementById("totalFleetVehicles").textContent =
+                data.totalFleetVehicles || 0;
+
+            document.getElementById("totalSwaps").textContent =
+                data.totalSwaps || 0;
+
+            document.getElementById("totalInvoices").textContent =
+                data.totalInvoices || 0;
+
+            document.getElementById("totalInvoiceAmount").textContent =
+                formatCurrency(data.totalInvoiceAmount);
+
+            document.getElementById("totalRevenue").textContent =
+                formatCurrency(data.totalRevenue);
+
+            document.getElementById("totalExpenses").textContent =
+                formatCurrency(data.totalExpenses);
+
+            document.getElementById("netAmount").textContent =
+                formatCurrency(data.netAmount);
+
+            document.getElementById("totalRecyclingCost").textContent =
+                formatCurrency(data.totalRecyclingCost);
+
+            const transactions =
+                Number(data.totalRevenue ? 1 : 0) +
+                Number(data.totalExpenses ? 1 : 0);
+
+            document.getElementById("totalTransactions").textContent =
+                transactions;
+
+        } catch (error) {
+
+            console.error(error);
+
+            showError(
+                "Could not load report summary. Make sure the Spring Boot server is running."
+            );
+        }
+    }
+
+
+    async function loadBatteryReport() {
+
+        const loading =
+            document.getElementById("batteryLoading");
+
+        const table =
+            document.getElementById("batteryTable");
+
+        const tbody =
+            document.getElementById("batteryTableBody");
+
+        loading.style.display = "block";
+        table.style.display = "none";
+
+        try {
+
+            const response = await fetch(
+                API_BASE + "/api/reports/batteries",
+                {
+                    headers: {
+                        "Authorization": authHeader
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Battery report failed");
+            }
+
+            const batteries = await response.json();
+
+            tbody.innerHTML = "";
+
+
+            batteries.forEach(battery => {
+
+                let statusClass = "";
+
+                if (battery.status === "RECYCLING") {
+                    statusClass = "status-recycling";
+                }
+                else if (battery.status === "AVAILABLE") {
+                    statusClass = "status-available";
+                }
+                else if (battery.status === "IN_USE") {
+                    statusClass = "status-inuse";
+                }
+
+
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${battery.id ?? "-"}</td>
+                    <td><strong>${battery.batteryCode ?? "-"}</strong></td>
+                    <td>${battery.manufacturer ?? "-"}</td>
+                    <td>${battery.chemistry ?? "-"}</td>
+                    <td>${battery.capacityKwh ?? 0} kWh</td>
+                    <td>${battery.sohPercentage ?? 0}%</td>
+                    <td>
+                        <span class="status ${statusClass}">
+                            ${battery.status ?? "-"}
+                        </span>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+
+            });
+
+
+            loading.style.display = "none";
+            table.style.display = "table";
+
+        } catch (error) {
+
+            console.error(error);
+
+            loading.textContent =
+                "Unable to load battery report.";
+        }
+    }
+
+
+    async function loadRecyclingReport() {
+
+        const loading =
+            document.getElementById("recyclingLoading");
+
+        const table =
+            document.getElementById("recyclingTable");
+
+        const tbody =
+            document.getElementById("recyclingTableBody");
+
+        loading.style.display = "block";
+        table.style.display = "none";
+
+        try {
+
+            const response = await fetch(
+                API_BASE + "/api/reports/recycling",
+                {
+                    headers: {
+                        "Authorization": authHeader
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Recycling report failed");
+            }
+
+            const records = await response.json();
+
+            tbody.innerHTML = "";
+
+
+            records.forEach(record => {
+
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${record.id ?? "-"}</td>
+                    <td><strong>${record.batteryCode ?? "-"}</strong></td>
+                    <td>${record.batterySoh ?? 0}%</td>
+                    <td>${record.recyclingSpecialist ?? "-"}</td>
+                    <td>${formatCurrency(record.recyclingCost)}</td>
+                    <td>
+                        <span class="status status-recycling">
+                            ${record.status ?? "-"}
+                        </span>
+                    </td>
+                    <td>${record.recyclingDate
+                        ? new Date(record.recyclingDate).toLocaleString()
+                        : "-"
+                    }</td>
+                `;
+
+                tbody.appendChild(row);
+
+            });
+
+
+            loading.style.display = "none";
+            table.style.display = "table";
+
+        } catch (error) {
+
+            console.error(error);
+
+            loading.textContent =
+                "Unable to load recycling report.";
+        }
+    }
+
+
+    // Load all reports when page opens
+
+    window.addEventListener("DOMContentLoaded", () => {
+
+        loadSummary();
+
+        loadBatteryReport();
+
+        loadRecyclingReport();
+
+    });
+
+</script>
+
+</body>
+</html>

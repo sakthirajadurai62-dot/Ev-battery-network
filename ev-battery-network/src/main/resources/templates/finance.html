@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Finance Management</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 20px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .back {
+            color: white;
+            text-decoration: none;
+            background: #2563eb;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        /* STAT CARDS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .stat-card h3 {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .revenue {
+            color: #16a34a;
+        }
+
+        .expense {
+            color: #dc2626;
+        }
+
+        .net {
+            color: #2563eb;
+        }
+
+        /* CARD */
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        /* FORM */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        input,
+        select,
+        textarea {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            outline: none;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        button {
+
+            margin-top: 20px;
+
+            padding: 12px 22px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #2563eb;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        /* TABLE */
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+
+            padding: 14px;
+
+            border-bottom: 1px solid #e5e7eb;
+
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .status-completed {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .type-revenue {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .type-expense {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <h1>💰 Finance Management</h1>
+
+    <a href="/" class="back">
+        ← Dashboard
+    </a>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- STATISTICS -->
+
+    <div class="stats">
+
+
+        <div class="stat-card">
+
+            <h3>Total Revenue</h3>
+
+            <p
+                    id="totalRevenue"
+                    class="revenue">
+                ₹ 0
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>Total Expenses</h3>
+
+            <p
+                    id="totalExpense"
+                    class="expense">
+                ₹ 0
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>Net Amount</h3>
+
+            <p
+                    id="netAmount"
+                    class="net">
+                ₹ 0
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>Total Transactions</h3>
+
+            <p id="totalTransactions">
+                0
+            </p>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- CREATE FINANCE RECORD -->
+
+    <div class="card">
+
+
+        <h2>
+            Add Finance Transaction
+        </h2>
+
+
+        <div class="form-grid">
+
+
+            <select id="transactionType">
+
+                <option value="REVENUE">
+                    Revenue
+                </option>
+
+                <option value="EXPENSE">
+                    Expense
+                </option>
+
+            </select>
+
+
+            <input
+                    type="number"
+                    id="amount"
+                    placeholder="Amount"
+                    step="0.01"
+            >
+
+
+            <input
+                    type="text"
+                    id="description"
+                    placeholder="Description"
+            >
+
+
+            <select id="paymentMethod">
+
+                <option value="BANK">
+                    Bank
+                </option>
+
+                <option value="UPI">
+                    UPI
+                </option>
+
+                <option value="CASH">
+                    Cash
+                </option>
+
+                <option value="CARD">
+                    Card
+                </option>
+
+            </select>
+
+
+            <select id="status">
+
+                <option value="COMPLETED">
+                    Completed
+                </option>
+
+                <option value="PENDING">
+                    Pending
+                </option>
+
+            </select>
+
+
+        </div>
+
+
+        <button onclick="createFinance()">
+            Add Transaction
+        </button>
+
+
+        <div
+                id="message"
+                class="message">
+        </div>
+
+
+    </div>
+
+
+    <!-- FINANCE TABLE -->
+
+    <div class="card">
+
+
+        <h2>
+            Finance Transactions
+        </h2>
+
+
+        <table>
+
+
+            <thead>
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>Type</th>
+
+                <th>Description</th>
+
+                <th>Amount</th>
+
+                <th>Payment Method</th>
+
+                <th>Status</th>
+
+                <th>Date</th>
+
+            </tr>
+
+            </thead>
+
+
+            <tbody
+                    id="financeTable">
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+    const username = "admin";
+
+    const password = "admin123";
+
+    const authHeader =
+        "Basic " +
+        btoa(username + ":" + password);
+
+
+
+    /* CREATE FINANCE */
+
+    function createFinance() {
+
+
+        const finance = {
+
+
+            transactionType:
+                document.getElementById(
+                    "transactionType"
+                ).value,
+
+
+            description:
+                document.getElementById(
+                    "description"
+                ).value,
+
+
+            amount:
+                parseFloat(
+                    document.getElementById(
+                        "amount"
+                    ).value
+                ),
+
+
+            paymentMethod:
+                document.getElementById(
+                    "paymentMethod"
+                ).value,
+
+
+            status:
+                document.getElementById(
+                    "status"
+                ).value
+
+        };
+
+
+        fetch("/api/finance", {
+
+
+            method: "POST",
+
+
+            headers: {
+
+                "Content-Type":
+                    "application/json",
+
+                "Authorization":
+                    authHeader
+
+            },
+
+
+            body:
+                JSON.stringify(finance)
+
+        })
+
+
+        .then(response => {
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to create finance record"
+                );
+
+            }
+
+
+            return response.json();
+
+        })
+
+
+        .then(data => {
+
+
+            document.getElementById(
+                "message"
+            ).innerText =
+                "✅ Finance transaction added successfully!";
+
+
+            document.getElementById(
+                "description"
+            ).value = "";
+
+
+            document.getElementById(
+                "amount"
+            ).value = "";
+
+
+            loadFinance();
+
+        })
+
+
+        .catch(error => {
+
+
+            document.getElementById(
+                "message"
+            ).innerText =
+                "❌ Error adding transaction";
+
+
+            console.error(error);
+
+        });
+
+    }
+
+
+
+    /* LOAD FINANCE */
+
+    function loadFinance() {
+
+
+        fetch("/api/finance", {
+
+
+            method: "GET",
+
+
+            headers: {
+
+                "Authorization":
+                    authHeader
+
+            }
+
+        })
+
+
+        .then(response =>
+            response.json()
+        )
+
+
+        .then(data => {
+
+
+            const table =
+                document.getElementById(
+                    "financeTable"
+                );
+
+
+            table.innerHTML = "";
+
+
+            let revenue = 0;
+
+            let expense = 0;
+
+
+            data.forEach(record => {
+
+
+                const amount =
+                    Number(record.amount || 0);
+
+
+                if (
+                    record.transactionType ===
+                    "REVENUE"
+                ) {
+
+                    revenue += amount;
+
+                }
+
+
+                if (
+                    record.transactionType ===
+                    "EXPENSE"
+                ) {
+
+                    expense += amount;
+
+                }
+
+
+                const row =
+                    document.createElement("tr");
+
+
+                const typeClass =
+                    record.transactionType ===
+                    "REVENUE"
+
+                        ? "type-revenue"
+
+                        : "type-expense";
+
+
+                const statusClass =
+                    record.status ===
+                    "COMPLETED"
+
+                        ? "status-completed"
+
+                        : "status-pending";
+
+
+                row.innerHTML = `
+
+
+                    <td>
+                        ${record.id}
+                    </td>
+
+
+                    <td
+                        class="${typeClass}">
+                        ${record.transactionType}
+                    </td>
+
+
+                    <td>
+                        ${record.description || "-"}
+                    </td>
+
+
+                    <td>
+                        ₹ ${amount.toFixed(2)}
+                    </td>
+
+
+                    <td>
+                        ${record.paymentMethod || "-"}
+                    </td>
+
+
+                    <td
+                        class="${statusClass}">
+                        ${record.status}
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            record.transactionDate
+
+                            ? new Date(
+                                record.transactionDate
+                            ).toLocaleDateString()
+
+                            : "-"
+                        }
+
+                    </td>
+
+
+                `;
+
+
+                table.appendChild(row);
+
+            });
+
+
+            const net =
+                revenue - expense;
+
+
+            document.getElementById(
+                "totalRevenue"
+            ).innerText =
+                "₹ " +
+                revenue.toFixed(2);
+
+
+            document.getElementById(
+                "totalExpense"
+            ).innerText =
+                "₹ " +
+                expense.toFixed(2);
+
+
+            document.getElementById(
+                "netAmount"
+            ).innerText =
+                "₹ " +
+                net.toFixed(2);
+
+
+            document.getElementById(
+                "totalTransactions"
+            ).innerText =
+                data.length;
+
+        })
+
+
+        .catch(error => {
+
+            console.error(
+                "Error loading finance records:",
+                error
+            );
+
+        });
+
+    }
+
+
+
+    /* INITIAL LOAD */
+
+    loadFinance();
+
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices & Billing</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .back {
+            color: white;
+            text-decoration: none;
+            background: #2563eb;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .paid {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .pending {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🧾 Invoices & Billing</h1>
+    <a href="/" class="back">← Dashboard</a>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Create Invoice</h2>
+
+        <div class="form-grid">
+
+            <input type="text"
+                   id="invoiceNumber"
+                   placeholder="Invoice Number">
+
+            <input type="text"
+                   id="customerName"
+                   placeholder="Customer / Fleet Name">
+
+            <input type="text"
+                   id="vehicleNumber"
+                   placeholder="Vehicle Number">
+
+            <input type="text"
+                   id="serviceName"
+                   placeholder="Service Name">
+
+            <input type="number"
+                   id="amount"
+                   placeholder="Amount">
+
+            <select id="paymentStatus">
+                <option value="PENDING">Pending</option>
+                <option value="PAID">Paid</option>
+            </select>
+
+        </div>
+
+        <button onclick="createInvoice()">Create Invoice</button>
+
+        <div id="message" class="message"></div>
+    </div>
+
+
+    <div class="card">
+        <h2>Invoice List</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Invoice No</th>
+                <th>Customer</th>
+                <th>Vehicle</th>
+                <th>Service</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+
+            <tbody id="invoiceTable">
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+
+    const username = "admin";
+    const password = "admin123";
+
+    const authHeader = "Basic " + btoa(username + ":" + password);
+
+
+    function createInvoice() {
+
+        const invoice = {
+            invoiceNumber: document.getElementById("invoiceNumber").value,
+            customerName: document.getElementById("customerName").value,
+            vehicleNumber: document.getElementById("vehicleNumber").value,
+            serviceName: document.getElementById("serviceName").value,
+            amount: parseFloat(document.getElementById("amount").value),
+            paymentStatus: document.getElementById("paymentStatus").value
+        };
+
+        fetch("/api/invoices", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": authHeader
+            },
+            body: JSON.stringify(invoice)
+        })
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("Failed to create invoice");
+            }
+
+            return response.json();
+        })
+        .then(data => {
+
+            document.getElementById("message").innerText =
+                "✅ Invoice created successfully!";
+
+            document.getElementById("invoiceNumber").value = "";
+            document.getElementById("customerName").value = "";
+            document.getElementById("vehicleNumber").value = "";
+            document.getElementById("serviceName").value = "";
+            document.getElementById("amount").value = "";
+
+            loadInvoices();
+        })
+        .catch(error => {
+
+            document.getElementById("message").innerText =
+                "❌ Error creating invoice";
+
+            console.error(error);
+        });
+    }
+
+
+    function loadInvoices() {
+
+        fetch("/api/invoices", {
+            method: "GET",
+            headers: {
+                "Authorization": authHeader
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            const table = document.getElementById("invoiceTable");
+
+            table.innerHTML = "";
+
+            data.forEach(invoice => {
+
+                const row = document.createElement("tr");
+
+                const statusClass =
+                    invoice.paymentStatus === "PAID"
+                        ? "paid"
+                        : "pending";
+
+                row.innerHTML = `
+                    <td>${invoice.invoiceNumber}</td>
+                    <td>${invoice.customerName}</td>
+                    <td>${invoice.vehicleNumber}</td>
+                    <td>${invoice.serviceName}</td>
+                    <td>₹ ${invoice.amount}</td>
+                    <td class="${statusClass}">
+                        ${invoice.paymentStatus}
+                    </td>
+                    <td>
+                        ${invoice.invoiceDate
+                            ? new Date(invoice.invoiceDate).toLocaleDateString()
+                            : "-"}
+                    </td>
+                `;
+
+                table.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error("Error loading invoices:", error);
+        });
+    }
+
+    loadInvoices();
+
+</script>
+
+</body>
+</html>

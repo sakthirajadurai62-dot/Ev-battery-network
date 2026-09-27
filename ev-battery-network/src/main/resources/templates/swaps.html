@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Battery Swaps | EV Network</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .back {
+            color: white;
+            text-decoration: none;
+            background: #2563eb;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        input {
+            padding: 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        button {
+            margin-top: 18px;
+            padding: 13px 22px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media(max-width: 800px) {
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+    <h1>🔄 Battery Swap Management</h1>
+
+    <a href="/" class="back">
+        ← Dashboard
+    </a>
+
+</div>
+
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>➕ Record New Battery Swap</h2>
+
+        <div class="form-grid">
+
+            <input
+                    id="vehicleNumber"
+                    placeholder="Vehicle Number">
+
+            <input
+                    id="driverName"
+                    placeholder="Driver Name">
+
+            <input
+                    id="oldBatteryCode"
+                    placeholder="Old Battery Code">
+
+            <input
+                    id="newBatteryCode"
+                    placeholder="New Battery Code">
+
+            <input
+                    id="swapCharge"
+                    type="number"
+                    step="0.01"
+                    placeholder="Swap Charge ₹">
+
+        </div>
+
+        <button onclick="createSwap()">
+            Record Swap
+        </button>
+
+        <div id="message"
+             class="message">
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>🔄 Recent Battery Swaps</h2>
+
+        <table>
+
+            <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Vehicle</th>
+                <th>Driver</th>
+                <th>Old Battery</th>
+                <th>New Battery</th>
+                <th>Charge</th>
+                <th>Time</th>
+            </tr>
+
+            </thead>
+
+            <tbody id="swapTable">
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const auth =
+        "Basic " + btoa("admin:admin123");
+
+
+    /*
+     * Safely display a value.
+     * Prevents "undefined" from appearing in the UI.
+     */
+    function safeValue(value) {
+
+        if (value === null ||
+            value === undefined ||
+            value === "") {
+
+            return "N/A";
+        }
+
+        return value;
+    }
+
+
+    /*
+     * Safely format swap date/time.
+     * Prevents "Invalid Date".
+     */
+    function formatSwapTime(value) {
+
+        if (!value) {
+            return "N/A";
+        }
+
+        const date = new Date(value);
+
+        if (isNaN(date.getTime())) {
+            return "N/A";
+        }
+
+        return date.toLocaleString();
+    }
+
+
+    /*
+     * Load all battery swaps
+     */
+    async function loadSwaps() {
+
+        try {
+
+            const response = await fetch(
+                "/api/swaps",
+                {
+                    headers: {
+                        "Authorization": auth
+                    }
+                }
+            );
+
+
+            if (!response.ok) {
+
+                console.error(
+                    "Failed to load swaps:",
+                    response.status
+                );
+
+                return;
+            }
+
+
+            const swaps =
+                await response.json();
+
+
+            /*
+             * Debug information.
+             * This helps verify the actual API response.
+             */
+            console.log(
+                "Battery Swap API Response:",
+                swaps
+            );
+
+
+            const table =
+                document.getElementById(
+                    "swapTable"
+                );
+
+
+            table.innerHTML = "";
+
+
+            /*
+             * Make sure the API returned an array.
+             */
+            if (!Array.isArray(swaps)) {
+
+                console.error(
+                    "Unexpected API response:",
+                    swaps
+                );
+
+                return;
+            }
+
+
+            /*
+             * Show message if no swaps exist.
+             */
+            if (swaps.length === 0) {
+
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="7"
+                            style="text-align:center;">
+                            No battery swaps recorded yet.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+
+            /*
+             * Render each swap.
+             */
+            swaps.forEach(swap => {
+
+                const id =
+                    safeValue(swap.id);
+
+
+                const vehicleNumber =
+                    safeValue(
+                        swap.vehicleNumber
+                    );
+
+
+                const driverName =
+                    safeValue(
+                        swap.driverName
+                    );
+
+
+                const oldBatteryCode =
+                    safeValue(
+                        swap.oldBatteryCode
+                    );
+
+
+                const newBatteryCode =
+                    safeValue(
+                        swap.newBatteryCode
+                    );
+
+
+                const swapCharge =
+                    swap.swapCharge !== null &&
+                    swap.swapCharge !== undefined &&
+                    swap.swapCharge !== ""
+                        ? "₹" +
+                          Number(
+                              swap.swapCharge
+                          ).toFixed(2)
+                        : "N/A";
+
+
+                const swapTime =
+                    formatSwapTime(
+                        swap.swapTime
+                    );
+
+
+                table.innerHTML += `
+
+                    <tr>
+
+                        <td>${id}</td>
+
+                        <td>${vehicleNumber}</td>
+
+                        <td>${driverName}</td>
+
+                        <td>${oldBatteryCode}</td>
+
+                        <td>${newBatteryCode}</td>
+
+                        <td>${swapCharge}</td>
+
+                        <td>${swapTime}</td>
+
+                    </tr>
+
+                `;
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Error loading battery swaps:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+     * Create a new battery swap
+     */
+    async function createSwap() {
+
+        const swap = {
+
+            vehicleNumber:
+                document.getElementById(
+                    "vehicleNumber"
+                ).value.trim(),
+
+
+            driverName:
+                document.getElementById(
+                    "driverName"
+                ).value.trim(),
+
+
+            oldBatteryCode:
+                document.getElementById(
+                    "oldBatteryCode"
+                ).value.trim(),
+
+
+            newBatteryCode:
+                document.getElementById(
+                    "newBatteryCode"
+                ).value.trim(),
+
+
+            swapCharge:
+                parseFloat(
+                    document.getElementById(
+                        "swapCharge"
+                    ).value
+                )
+
+        };
+
+
+        /*
+         * Basic validation
+         */
+        if (!swap.vehicleNumber ||
+            !swap.driverName ||
+            !swap.oldBatteryCode ||
+            !swap.newBatteryCode ||
+            isNaN(swap.swapCharge)) {
+
+            showMessage(
+                "⚠️ Please fill all fields.",
+                false
+            );
+
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/swaps",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                auth
+                        },
+
+                        body:
+                            JSON.stringify(
+                                swap
+                            )
+                    }
+                );
+
+
+            if (response.ok) {
+
+                showMessage(
+                    "✅ Battery swap recorded successfully.",
+                    true
+                );
+
+
+                document
+                    .querySelectorAll(
+                        ".form-grid input"
+                    )
+                    .forEach(input => {
+                        input.value = "";
+                    });
+
+
+                /*
+                 * Reload table after saving.
+                 */
+                await loadSwaps();
+
+            } else {
+
+                const errorText =
+                    await response.text();
+
+                console.error(
+                    "Swap creation failed:",
+                    errorText
+                );
+
+
+                showMessage(
+                    "❌ Failed to record battery swap.",
+                    false
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Error creating swap:",
+                error
+            );
+
+
+            showMessage(
+                "❌ Server connection error.",
+                false
+            );
+
+        }
+
+    }
+
+
+    /*
+     * Display success/error message
+     */
+    function showMessage(
+        text,
+        success
+    ) {
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+
+        message.innerText =
+            text;
+
+
+        message.className =
+            "message " +
+            (
+                success
+                    ? "success"
+                    : "error"
+            );
+
+    }
+
+
+    /*
+     * Load swaps when page opens.
+     */
+    loadSwaps();
+
+</script>
+
+</body>
+
+</html>

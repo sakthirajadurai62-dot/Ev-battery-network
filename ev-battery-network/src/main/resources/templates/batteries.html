@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Battery Management | EV Network</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .back {
+            color: white;
+            text-decoration: none;
+            background: #2563eb;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+        }
+
+        button {
+            margin-top: 18px;
+            padding: 13px 22px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .recycling {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .charging {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .inuse {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media(max-width: 800px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+
+    <h1>🔋 Battery Management</h1>
+
+    <a href="/" class="back">
+        ← Dashboard
+    </a>
+
+</div>
+
+
+<div class="container">
+
+    <!-- ADD BATTERY -->
+
+    <div class="card">
+
+        <h2>➕ Add New Battery</h2>
+
+        <div class="form-grid">
+
+            <input
+                    id="batteryCode"
+                    type="text"
+                    placeholder="Battery Code (Example: BAT003)"
+            >
+
+            <input
+                    id="manufacturer"
+                    type="text"
+                    placeholder="Manufacturer"
+            >
+
+            <input
+                    id="chemistry"
+                    type="text"
+                    placeholder="Chemistry (Example: LFP)"
+            >
+
+            <input
+                    id="capacityKwh"
+                    type="number"
+                    step="0.1"
+                    placeholder="Capacity (kWh)"
+            >
+
+            <input
+                    id="sohPercentage"
+                    type="number"
+                    step="0.1"
+                    placeholder="SoH Percentage"
+            >
+
+        </div>
+
+        <button onclick="addBattery()">
+            Add Battery
+        </button>
+
+        <div id="message" class="message"></div>
+
+    </div>
+
+
+    <!-- BATTERY LIST -->
+
+    <div class="card">
+
+        <h2>🔋 Battery Inventory</h2>
+
+        <table>
+
+            <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Battery Code</th>
+                <th>Manufacturer</th>
+                <th>Chemistry</th>
+                <th>Capacity</th>
+                <th>SoH</th>
+                <th>Status</th>
+            </tr>
+
+            </thead>
+
+            <tbody id="batteryTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const username = "admin";
+    const password = "admin123";
+
+    const auth =
+        "Basic " + btoa(username + ":" + password);
+
+
+    // LOAD BATTERIES
+
+    async function loadBatteries() {
+
+        try {
+
+            const response = await fetch(
+                "/api/batteries",
+                {
+                    headers: {
+                        "Authorization": auth
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Unable to load batteries");
+            }
+
+            const batteries = await response.json();
+
+            const table =
+                document.getElementById("batteryTable");
+
+            table.innerHTML = "";
+
+            batteries.forEach(battery => {
+
+                let statusClass = "";
+
+                if (battery.status === "AVAILABLE") {
+                    statusClass = "available";
+                }
+
+                if (battery.status === "RECYCLING") {
+                    statusClass = "recycling";
+                }
+
+                if (battery.status === "CHARGING") {
+                    statusClass = "charging";
+                }
+
+                if (battery.status === "IN_USE") {
+                    statusClass = "inuse";
+                }
+
+                table.innerHTML += `
+
+                    <tr>
+
+                        <td>${battery.id}</td>
+
+                        <td>
+                            <strong>${battery.batteryCode}</strong>
+                        </td>
+
+                        <td>${battery.manufacturer || "-"}</td>
+
+                        <td>${battery.chemistry || "-"}</td>
+
+                        <td>${battery.capacityKwh || 0} kWh</td>
+
+                        <td>
+                            <strong>
+                                ${battery.sohPercentage || 0}%
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span class="status ${statusClass}">
+                                ${battery.status}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                `;
+
+            });
+
+        } catch (error) {
+
+            showMessage(
+                "Unable to load battery data",
+                false
+            );
+
+        }
+
+    }
+
+
+    // ADD BATTERY
+
+    async function addBattery() {
+
+        const battery = {
+
+            batteryCode:
+                document.getElementById("batteryCode").value,
+
+            manufacturer:
+                document.getElementById("manufacturer").value,
+
+            chemistry:
+                document.getElementById("chemistry").value,
+
+            capacityKwh:
+                parseFloat(
+                    document.getElementById("capacityKwh").value
+                ),
+
+            sohPercentage:
+                parseFloat(
+                    document.getElementById("sohPercentage").value
+                )
+
+        };
+
+
+        if (
+            !battery.batteryCode ||
+            !battery.manufacturer ||
+            !battery.chemistry ||
+            !battery.capacityKwh ||
+            !battery.sohPercentage
+        ) {
+
+            showMessage(
+                "Please fill all fields",
+                false
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response = await fetch(
+                "/api/batteries/packs",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": auth
+                    },
+
+                    body: JSON.stringify(battery)
+                }
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Battery creation failed"
+                );
+
+            }
+
+
+            const result =
+                await response.json();
+
+
+            if (result.status === "RECYCLING") {
+
+                showMessage(
+                    "⚠️ Battery added. SoH below 70% → Automatically sent to Recycling.",
+                    true
+                );
+
+            } else {
+
+                showMessage(
+                    "✅ Battery added successfully.",
+                    true
+                );
+
+            }
+
+
+            // Clear fields
+
+            document.getElementById(
+                "batteryCode"
+            ).value = "";
+
+            document.getElementById(
+                "manufacturer"
+            ).value = "";
+
+            document.getElementById(
+                "chemistry"
+            ).value = "";
+
+            document.getElementById(
+                "capacityKwh"
+            ).value = "";
+
+            document.getElementById(
+                "sohPercentage"
+            ).value = "";
+
+
+            loadBatteries();
+
+
+        } catch (error) {
+
+            showMessage(
+                "❌ Error adding battery.",
+                false
+            );
+
+        }
+
+    }
+
+
+    // MESSAGE
+
+    function showMessage(text, success) {
+
+        const message =
+            document.getElementById("message");
+
+        message.innerText = text;
+
+        message.className =
+            "message " +
+            (success ? "success" : "error");
+
+        message.style.display = "block";
+
+    }
+
+
+    // INITIAL LOAD
+
+    loadBatteries();
+
+</script>
+
+</body>
+</html>
